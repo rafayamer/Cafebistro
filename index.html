@@ -132,7 +132,8 @@ const WIFI_SSID    = "Casa_Guest";
 const WIFI_PASS    = "Pakistan@786";
 const MENU_URL     = "/menu.pdf"; // put menu.pdf in your repo root (or use a permanent URL)
 const FEEDBACK_URL = "https://forms.gle/your-google-form-id";
-const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
+const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec
+";
 /* ==================== */
 
 const $ = (id)=>document.getElementById(id);
@@ -217,25 +218,30 @@ function showError(msg) {
   errEl.textContent = msg || "";
 }
 
+<script>
 async function postToSheet(payload) {
   const ctrl = new AbortController();
-  const to = setTimeout(()=>ctrl.abort(), 10000);
+  const to = setTimeout(()=>ctrl.abort(), 12000);
   try {
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // <- no preflight
       body: JSON.stringify(payload),
-      signal: ctrl.signal,
-      // Apps Script handles CORS for JSON responses automatically
+      signal: ctrl.signal
     });
     clearTimeout(to);
-    return await res.json().catch(()=>({ok:false, error:"Bad JSON"}));
+    // Apps Script returns JSON text
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch { return { ok:false, error:"Bad JSON: " + text.slice(0,120) }; }
   } catch (e) {
     clearTimeout(to);
     return { ok:false, error: e?.name === "AbortError" ? "Timeout" : (e?.message || "Network error") };
   }
 }
+</script>
 
+  
 form.addEventListener("submit", async (e)=>{
   e.preventDefault();
   showError("");
