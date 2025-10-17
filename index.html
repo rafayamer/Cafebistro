@@ -8,6 +8,35 @@
   :root { --bg:#0f172a; --card:#111827; --text:#f8fafc; --muted:#94a3b8; --accent:#22c55e; --btn:#1f2937; --btn2:#0ea5e9; --warn:#f59e0b; }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(160deg,#0b1224,#0f172a);}
+
+  /* ===== Onboarding overlay (form) ===== */
+  .overlay {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    background: rgba(2,6,23,.85); backdrop-filter: blur(6px); z-index: 50;
+  }
+  .form-card {
+    width: 100%; max-width: 520px; background: var(--card); color: var(--text);
+    border-radius: 18px; padding: 22px; box-shadow: 0 10px 35px rgba(0,0,0,.45);
+  }
+  .form-card h2 { margin: 0 0 6px; font-size: 22px }
+  .form-sub { color: var(--muted); font-size: 14px; margin: 0 0 16px }
+  .field { display: grid; gap: 6px; margin-bottom: 12px }
+  .label { font-size: 14px; color: #e2e8f0 }
+  .input {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #334155;
+    background: #0b1220; color: var(--text); font-size: 16px; outline: none;
+  }
+  .input::placeholder { color: #64748b }
+  .btn-main {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 12px 16px; border: 0; border-radius: 12px; background: var(--btn2);
+    color: white; font-weight: 700; width: 100%; cursor: pointer;
+  }
+  .btn-main[disabled]{ opacity:.6; cursor:not-allowed }
+  .err { color: #fecaca; font-size: 13px; min-height: 18px; margin-top: 6px }
+  .note { color: var(--muted); font-size: 12px; margin-top: 8px }
+
+  /* ===== Main page ===== */
   .wrap{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}
   .card{width:100%;max-width:520px;background:var(--card);border-radius:20px;padding:24px;box-shadow:0 10px 35px rgba(0,0,0,.45)}
   h1{color:var(--text);font-size:22px;margin:0 0 6px}
@@ -17,18 +46,52 @@
   .btn.menu{background:var(--btn2)} .btn.feedback{background:#10b981} .btn.wifi{background:#6366f1}
   .small{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
   .wifiBox{background:#0b1220;border:1px dashed #334155;border-radius:14px;padding:14px;margin-top:14px}
-  .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .rowx{display:flex;gap:10px;align-items:center;justify-content:space-between}
   .pill{background:#111827;border:1px solid #334155;border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cp{padding:10px 12px;border-radius:10px;background:#0ea5e9;color:white;border:0;font-weight:700}
   .open{margin-top:10px;background:#22c55e}
-  .hint{color:#cbd5e1;font-size:13px;margin-top:8px}
+  .hint{color:#cbd5e1;font-size:13px}
   .icons{font-size:22px}
   .banner{margin-top:10px;background:#1f2937;color:#e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;display:none}
   .banner.show{display:block}
+  /* Hide main until form completes */
+  .hidden-initial { visibility:hidden }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<!-- ===== Overlay Check-in Form ===== -->
+<div id="checkinOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="checkinTitle">
+  <form id="checkinForm" class="form-card" novalidate>
+    <h2 id="checkinTitle">Welcome to Casa Bistro 👋</h2>
+    <p class="form-sub">Please check in so we can serve you better.</p>
+
+    <!-- honeypot to deter bots -->
+    <input type="text" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0" aria-hidden="true" />
+
+    <div class="field">
+      <label class="label" for="name">Full Name</label>
+      <input class="input" id="name" name="name" type="text" placeholder="e.g., Ayesha Khan" required minlength="2" maxlength="80" />
+    </div>
+
+    <div class="field">
+      <label class="label" for="phone">WhatsApp / Phone</label>
+      <input class="input" id="phone" name="phone" type="tel" inputmode="tel"
+             placeholder="+92 3xx xxxxxxx" required pattern="^[+]?[\d\s()-]{8,20}$" />
+    </div>
+
+    <div class="err" id="formError"></div>
+
+    <button id="submitBtn" class="btn-main" type="submit">
+      <span id="btnText">Save & Continue</span>
+      <span id="btnSpinner" aria-hidden="true" style="display:none">⏳</span>
+    </button>
+    <p class="note">By continuing you agree we may contact you about your visit and offers.</p>
+  </form>
+</div>
+
+<!-- ===== Main Page (revealed after OK) ===== -->
+<div id="mainRoot" class="wrap hidden-initial" aria-hidden="true">
   <div class="card">
     <h1>Welcome to Casa Bistro 👋</h1>
     <p class="sub">Choose an option below</p>
@@ -46,11 +109,11 @@
     </div>
 
     <div id="wifiPanel" class="wifiBox" hidden>
-      <div class="row" aria-label="Wi-Fi SSID">
+      <div class="rowx" aria-label="Wi-Fi SSID">
         <div class="pill" id="ssidText">SSID</div>
         <button class="cp" id="copySsidBtn" type="button">Copy Name</button>
       </div>
-      <div class="row" style="margin-top:8px" aria-label="Wi-Fi Password">
+      <div class="rowx" style="margin-top:8px" aria-label="Wi-Fi Password">
         <div class="pill" id="passText">••••••••</div>
         <button class="cp" id="copyPassBtn" type="button">Copy Password</button>
       </div>
@@ -64,18 +127,22 @@
 </div>
 
 <script>
-/* ====== CONFIG – set your values here ====== */
+/* ====== CONFIG ====== */
 const WIFI_SSID    = "Casa_Guest";
 const WIFI_PASS    = "Pakistan@786";
-const MENU_URL     = "https://cdn.qr-code-generator.com/account45775687/55317574_1.pdf?Expires=1760655864&Signature=amWAzs7T-~YYXvxOuuA1oQMGzDMnJ-AzopzrtDjzOutEHQ0COI5R6nSjqvRwEnRbOUjXHc7fwocKSX3hhlsZHfF44qmVdClCoOoFCUer-jFD5zx-sdzX8-TZ-4pzq-s8fVUBaukwSXofmCjnJvUuozdVE6seqjzd7zZirnHhNj-qGwSCLb7gIr9t79k2KJQ1DxK4gxKWjHgDHIq-1Azix6bcoHy6JXQ5h3Oo6CW~xyafCWklmVGjIxUqVEoDASv9hfPe9AWyZ1uBGiEHNfHbVRZ13ZoKk3rL3TnZZLTm120t35Zid8wS5noUi6rJmJ4-B-TNjTa9dAeQBFFRDp1cAg__&Key-Pair-Id=KKMPOJU8AYATR";
+const MENU_URL     = "/menu.pdf"; // put menu.pdf in your repo root (or use a permanent URL)
 const FEEDBACK_URL = "https://forms.gle/your-google-form-id";
-/* ========================================== */
+const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
+/* ==================== */
 
 const $ = (id)=>document.getElementById(id);
+
+/* ===== Main page bindings ===== */
 $("menuBtn").href = MENU_URL;
 $("fbBtn").href   = FEEDBACK_URL;
 $("ssidText").textContent = WIFI_SSID;
-$("ssidInline").textContent = WIFI_SSID;
+const ssidInline = document.getElementById("ssidInline");
+if (ssidInline) ssidInline.textContent = WIFI_SSID;
 
 // Mask password visually but allow reveal on press
 const passEl = $("passText");
@@ -117,6 +184,89 @@ $("wifiBtn").onclick = ()=>{
   }
 };
 $("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } else { $("iosBanner").classList.add("show"); } };
+
+/* ===== Check-in form logic ===== */
+const overlay = $("checkinOverlay");
+const form = $("checkinForm");
+const errEl = $("formError");
+const btn = $("submitBtn");
+const btnText = $("btnText");
+const btnSpin = $("btnSpinner");
+const mainRoot = $("mainRoot");
+
+// reveal main page AFTER check-in
+function revealMain() {
+  overlay.style.display = "none";
+  mainRoot.style.visibility = "visible";
+  mainRoot.setAttribute("aria-hidden","false");
+}
+
+// Persist minimal flag so revisits don’t show form again (optional)
+const VISITED_KEY = "casa_bistro_checked_in_v1";
+if (localStorage.getItem(VISITED_KEY) === "1") {
+  revealMain();
+}
+
+function setBusy(b) {
+  btn.disabled = b;
+  btnSpin.style.display = b ? "inline-block" : "none";
+  btnText.textContent = b ? "Saving..." : "Save & Continue";
+}
+
+function showError(msg) {
+  errEl.textContent = msg || "";
+}
+
+async function postToSheet(payload) {
+  const ctrl = new AbortController();
+  const to = setTimeout(()=>ctrl.abort(), 10000);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+      // Apps Script handles CORS for JSON responses automatically
+    });
+    clearTimeout(to);
+    return await res.json().catch(()=>({ok:false, error:"Bad JSON"}));
+  } catch (e) {
+    clearTimeout(to);
+    return { ok:false, error: e?.name === "AbortError" ? "Timeout" : (e?.message || "Network error") };
+  }
+}
+
+form.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  showError("");
+
+  const honeypot = form.querySelector('input[name="website"]')?.value?.trim();
+  if (honeypot) { return; } // bot
+
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
+
+  if (!name || name.length < 2) { showError("Please enter your full name."); return; }
+  if (!/^[+]?[\d\s()-]{8,20}$/.test(phone)) { showError("Please enter a valid phone/WhatsApp number."); return; }
+
+  setBusy(true);
+  const payload = {
+    name, phone,
+    userAgent: navigator.userAgent,
+    referrer: document.referrer || "",
+  };
+
+  const resp = await postToSheet(payload);
+
+  setBusy(false);
+
+  if (resp && resp.ok) {
+    try { localStorage.setItem(VISITED_KEY, "1"); } catch {}
+    revealMain(); // OK -> show main content
+  } else {
+    showError("Could not save. Please try again or ask staff.");
+  }
+});
 </script>
 </body>
 </html>
