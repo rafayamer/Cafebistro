@@ -167,10 +167,10 @@ const ua = navigator.userAgent||"";
 const isAndroid = /Android/i.test(ua);
 const isIOS = /iPhone|iPad|iPod/i.test(ua);
 const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-$("wifiBtn").onclick = ()=>{ $("wifiPanel").hidden=false; if(isIOS||isSafari)$("iosBanner").classList.add("show");
-  if(isAndroid){ const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";
+$("wifiBtn").onclick = ()=>{ $("wifiPanel").hidden=false; if(isIOS||isSafari){$("iosBanner").classList.add("show");$("openWifi").hidden= true;}
+  if(isAndroid){ const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";$("openWifi").hidden= false;
     a.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),600);} };
-$("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; $("openWifi").hidden= false;} else { $("iosBanner").classList.add("show"); $("openWifi").hidden= true; } };
+$("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } else { $("iosBanner").classList.add("show"); } };
 
 /* ===== Check-in Logic ===== */
 const overlay = $("checkinOverlay");
