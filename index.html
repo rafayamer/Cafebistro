@@ -8,29 +8,25 @@
   :root { --bg:#0f172a; --card:#111827; --text:#f8fafc; --muted:#94a3b8; --accent:#22c55e; --btn:#1f2937; --btn2:#0ea5e9; --warn:#f59e0b; }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(160deg,#0b1224,#0f172a);}
-
-  /* ===== Overlay (check-in form) ===== */
-  .overlay { position:fixed; inset:0; display:grid; place-items:center; background:rgba(2,6,23,.85); backdrop-filter:blur(6px); z-index:50; }
-  .form-card { width:100%; max-width:520px; background:var(--card); color:var(--text); border-radius:18px; padding:22px; box-shadow:0 10px 35px rgba(0,0,0,.45); }
-  .form-card h2 { margin:0 0 6px; font-size:22px }
-  .form-sub { color:var(--muted); font-size:14px; margin:0 0 16px }
-  .field { display:grid; gap:6px; margin-bottom:12px }
-  .label { font-size:14px; color:#e2e8f0 }
-  .input { width:100%; padding:12px 14px; border-radius:12px; border:1px solid #334155; background:#0b1220; color:var(--text); font-size:16px; outline:none; }
-  .input::placeholder{ color:#64748b }
-  .btn-main { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border:0; border-radius:12px; background:var(--btn2); color:white; font-weight:700; width:100%; cursor:pointer; }
-  .btn-main[disabled]{ opacity:.6; cursor:not-allowed }
-  .err { color:#fecaca; font-size:13px; min-height:18px; margin-top:6px }
-  .note { color:var(--muted); font-size:12px; margin-top:8px }
-
-  /* ===== Main page ===== */
-  .wrap{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .overlay{position:fixed;inset:0;display:grid;place-items:center;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);z-index:50;}
+  .form-card{width:100%;max-width:520px;background:var(--card);color:var(--text);border-radius:18px;padding:22px;box-shadow:0 10px 35px rgba(0,0,0,.45);}
+  .form-card h2{margin:0 0 6px;font-size:22px}
+  .form-sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .field{display:grid;gap:6px;margin-bottom:12px}
+  .label{font-size:14px;color:#e2e8f0}
+  .input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #334155;background:#0b1220;color:var(--text);font-size:16px;outline:none;}
+  .input::placeholder{color:#64748b}
+  .btn-main{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border:0;border-radius:12px;background:var(--btn2);color:white;font-weight:700;width:100%;cursor:pointer;}
+  .btn-main[disabled]{opacity:.6;cursor:not-allowed}
+  .err{color:#fecaca;font-size:13px;min-height:18px;margin-top:6px}
+  .note{color:var(--muted);font-size:12px;margin-top:8px}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .card{width:100%;max-width:520px;background:var(--card);border-radius:20px;padding:24px;box-shadow:0 10px 35px rgba(0,0,0,.45)}
   h1{color:var(--text);font-size:22px;margin:0 0 6px}
   .sub{color:var(--muted);font-size:14px;margin:0 0 18px}
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
   .btn{display:flex;align-items:center;gap:12px;width:100%;padding:16px 18px;border:0;border-radius:14px;background:var(--btn);color:var(--text);font-size:18px;font-weight:600;text-decoration:none;justify-content:center}
-  .btn.menu{background:var(--btn2)} .btn.feedback{background:#10b981} .btn.wifi{background:#6366f1}
+  .btn.menu{background:var(--btn2)} .btn.wifi{background:#6366f1}
   .small{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
   .wifiBox{background:#0b1220;border:1px dashed #334155;border-radius:14px;padding:14px;margin-top:14px}
   .rowx{display:flex;gap:10px;align-items:center;justify-content:space-between}
@@ -41,20 +37,16 @@
   .icons{font-size:22px}
   .banner{margin-top:10px;background:#1f2937;color:#e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;display:none}
   .banner.show{display:block}
-
-  /* Hide main until check-in completes */
-  .hidden-initial{ visibility:hidden }
+  .hidden-initial{visibility:hidden}
 </style>
 </head>
 <body>
 
 <!-- ===== Check-in Overlay ===== -->
-<div id="checkinOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="checkinTitle">
+<div id="checkinOverlay" class="overlay" role="dialog" aria-modal="true">
   <form id="checkinForm" class="form-card" novalidate>
-    <h2 id="checkinTitle">Welcome to Casa Bistro 👋</h2>
+    <h2>Welcome to Casa Bistro 👋</h2>
     <p class="form-sub">Please check in so we can serve you better.</p>
-
-    <!-- honeypot (bot trap) -->
     <input type="text" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0" aria-hidden="true" />
 
     <div class="field">
@@ -69,7 +61,6 @@
     </div>
 
     <div class="err" id="formError"></div>
-
     <button id="submitBtn" class="btn-main" type="submit">
       <span id="btnText">Save & Continue</span>
       <span id="btnSpinner" aria-hidden="true" style="display:none">⏳</span>
@@ -86,146 +77,96 @@
 
     <div class="grid">
       <a id="menuBtn" class="btn menu" href="#" target="_blank" rel="noopener"><span class="icons">📜</span> Menu</a>
-      <a id="fbBtn" class="btn feedback" href="#" target="_blank" rel="noopener"><span class="icons">📝</span> Feedback</a>
       <button id="wifiBtn" class="btn wifi" type="button"><span class="icons">📶</span> Join Wi-Fi</button>
     </div>
 
     <div id="wifiPanel" class="wifiBox" hidden>
-      <div class="rowx" aria-label="Wi-Fi SSID">
+      <div class="rowx">
         <div class="pill" id="ssidText">SSID</div>
         <button class="cp" id="copySsidBtn" type="button">Copy Name</button>
       </div>
-      <div class="rowx" style="margin-top:8px" aria-label="Wi-Fi Password">
+      <div class="rowx" style="margin-top:8px">
         <div class="pill" id="passText">••••••••</div>
         <button class="cp" id="copyPassBtn" type="button">Copy Password</button>
       </div>
       <button id="openWifi" class="cp open" type="button">Open Wi-Fi Settings</button>
-     <div id="iosBanner" class="banner">
-  <p><b>iPhone/iPad Users:</b> Click and Hold QR code to join Wi-Fi.</p>
-  <img id="wifiQR" src="qr.png" alt="Casa Bistro Wi-Fi QR"
-       style="display:block;margin:10px auto;width:160px;height:160px;border-radius:12px;background:#fff;padding:6px;">
-  <p style="font-size:13px;margin-top:8px;color:#e5e7eb">
-    Or manually connect to <b id="ssidInline"></b> and paste the password you copied.
-  </p>
-</div>
 
-      <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically when Wi-Fi is on.</div>
+      <div id="iosBanner" class="banner">
+        <p><b>iPhone/iPad Users:</b> Click & hold QR code to join Wi-Fi.</p>
+        <img id="wifiQR" src="qr.png" alt="Casa Bistro Wi-Fi QR"
+             style="display:block;margin:10px auto;width:160px;height:160px;border-radius:12px;background:#fff;padding:6px;">
+        <p style="font-size:13px;margin-top:8px;color:#e5e7eb">
+          Or manually connect to <b id="ssidInline"></b> and paste the password you copied.
+        </p>
+      </div>
+
+      <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically.</div>
     </div>
-
     <p class="small">Trouble? Ask staff for help.</p>
   </div>
 </div>
 
 <script>
 /* ========= CONFIG ========= */
-const WIFI_SSID    = "Casa_Guest";
-const WIFI_PASS    = "Pakistan@786";
-const MENU_URL     = "https://cdn.qr-code-generator.com/account45775687/55317574_1.pdf?Expires=1760803060&Signature=NRp-PmsfBl1LFndl3sVrFFZMZVbDTQw1LEzV-CD5qB5kfH-s92U6eEh6b-doT88EqoIfbO8NpMlgeSdN5yRHmLjtRaaSsDSE5RnOip91XVpCRNzbjFWTIpmJTdjFvnSgFV04fEfGsoaghPm0cFqQys9JYImbTgYBh-BCN4tggfxbI9uQ9GAI5G05pO2s1VZaVADwosqEnQRYxgJPGLx2npZRihNUdBNDwxXuCZXcHJduw4h3Met98G9C1t-SyFU3PGqLuu323UMR6T0voISjY7abF4PdM81wNEo~ElfLqt0y~hYoR2JueAGWfLT~JepujGnzHdpjff52Aeb1coqCtg__&Key-Pair-Id=KKMPOJU8AYATR";
-const FEEDBACK_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4mKAQ-fiaiRP50JVVkKfhnIPAs83Oeg8U9fXLEzmCiM1KFw/viewform?usp=header";
-const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
+const WIFI_SSID = "Casa_Guest";
+const WIFI_PASS = "Pakistan@786";
+const MENU_URL  = "casabistro final.pdf";  // Local PDF file
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
 /* ========================= */
+const $ = id => document.getElementById(id);
 
-const $ = (id)=>document.getElementById(id);
-
-/* ===== Cache clear on reload ===== */
-window.addEventListener("load", () => {
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-    if (performance && performance.getEntriesByType("navigation")[0]?.type === "reload") {
-      window.location.href = window.location.origin + window.location.pathname;
-    }
-  } catch (e) {
-    console.warn("Could not clear cache:", e);
-  }
-});
-
-/* ===== Main Page UI ===== */
+/* ===== UI Bindings ===== */
 $("menuBtn").href = MENU_URL;
-$("fbBtn").href   = FEEDBACK_URL;
 $("ssidText").textContent = WIFI_SSID;
-const ssidInline = document.getElementById("ssidInline");
-if (ssidInline) ssidInline.textContent = WIFI_SSID;
+$("ssidInline").textContent = WIFI_SSID;
 
-/* ===== Wi-Fi Section ===== */
+/* ===== Wi-Fi Logic ===== */
 const passEl = $("passText");
-const mask = s => s.replace(/./g, "•");
+const mask = s => s.replace(/./g,"•");
 passEl.textContent = mask(WIFI_PASS);
-let t; function show(){passEl.textContent=WIFI_PASS} function hide(){passEl.textContent=mask(WIFI_PASS)}
-["pointerdown","touchstart","mousedown"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);t=setTimeout(show,120);} ));
-["pointerup","pointerleave","touchend","touchcancel","mouseup","mouseleave"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);hide();}));
-async function copyText(text){
-  try{
-    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); alert("Copied!"); }
-    else{ const i=document.createElement("input"); i.value=text; document.body.appendChild(i); i.select(); document.execCommand("copy"); i.remove(); alert("Copied!"); }
-  }catch{ alert("Copy failed. Please long-press and copy."); }
-}
+let t;
+function show(){passEl.textContent=WIFI_PASS}
+function hide(){passEl.textContent=mask(WIFI_PASS)}
+["mousedown","touchstart"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);t=setTimeout(show,100);}));
+["mouseup","mouseleave","touchend","touchcancel"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);hide();}));
+async function copyText(text){try{await navigator.clipboard.writeText(text);alert("Copied!");}catch{alert("Copy failed. Try manually.");}}
 $("copySsidBtn").onclick=()=>copyText(WIFI_SSID);
 $("copyPassBtn").onclick=()=>copyText(WIFI_PASS);
 
-const ua = navigator.userAgent||"";
-const isAndroid = /Android/i.test(ua);
-const isIOS = /iPhone|iPad|iPod/i.test(ua);
-const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-$("wifiBtn").onclick = ()=>{ $("wifiPanel").hidden=false; if(isIOS||isSafari){$("iosBanner").classList.add("show");$("openWifi").hidden= true;}
-  if(isAndroid){ const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";$("openWifi").hidden= false;
-    a.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),600);} };
-$("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } else { $("iosBanner").classList.add("show"); } };
+const ua=navigator.userAgent||"";
+const isAndroid=/Android/i.test(ua);
+const isIOS=/iPhone|iPad|iPod/i.test(ua);
+$("wifiBtn").onclick=()=>{$("wifiPanel").hidden=false;if(isIOS){$("iosBanner").classList.add("show");$("openWifi").hidden=true;}else{$("openWifi").hidden=false;}}
+$("openWifi").onclick=()=>{if(isAndroid){location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end";}else{$("iosBanner").classList.add("show");}};
 
 /* ===== Check-in Logic ===== */
-const overlay = $("checkinOverlay");
-const form = $("checkinForm");
-const errEl = $("formError");
-const btn = $("submitBtn");
-const btnText = $("btnText");
-const btnSpin = $("btnSpinner");
-const mainRoot = $("mainRoot");
+const overlay=$("checkinOverlay");
+const form=$("checkinForm");
+const errEl=$("formError");
+const btn=$("submitBtn");
+const btnText=$("btnText");
+const btnSpin=$("btnSpinner");
+const mainRoot=$("mainRoot");
 
-function revealMain(){
-  overlay.style.display = "none";
-  mainRoot.style.visibility = "visible";
-  mainRoot.setAttribute("aria-hidden","false");
-}
-function setBusy(b){ btn.disabled=b; btnSpin.style.display = b ? "inline-block" : "none"; btnText.textContent = b ? "Saving..." : "Save & Continue"; }
-function showError(msg){ errEl.textContent = msg || ""; }
+function revealMain(){overlay.style.display="none";mainRoot.style.visibility="visible";mainRoot.setAttribute("aria-hidden","false");}
+function setBusy(b){btn.disabled=b;btnSpin.style.display=b?"inline-block":"none";btnText.textContent=b?"Saving...":"Save & Continue";}
+function showError(m){errEl.textContent=m||"";}
+function normalizePhone(i){if(!i)return null;let n=i.replace(/[^\d+]/g,"");if(n.startsWith("00"))n="+"+n.slice(2);if(/^0\d{10}$/.test(n))n="+92"+n.slice(1);else if(/^3\d{9}$/.test(n))n="+92"+n;if(!/^\+\d{10,15}$/.test(n))return null;return n;}
+function whatsappLink(num){return num?"https://wa.me/"+num.replace("+",""):"";}
+async function postToSheet(payload){try{await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});}catch(e){console.error(e);}}
 
-// Universal phone normalization
-function normalizePhone(input){
-  if(!input) return null;
-  let num = input.replace(/[^\d+]/g,"");
-  if(num.startsWith("00")) num = "+"+num.slice(2);
-  if(/^0\d{10}$/.test(num)) num = "+92"+num.slice(1);
-  else if(/^3\d{9}$/.test(num)) num = "+92"+num;
-  if(!/^\+\d{10,15}$/.test(num)) return null;
-  return num;
-}
-function whatsappLink(e164){ return e164 ? "https://wa.me/"+e164.replace("+","") : ""; }
-
-// Send to Google Sheet
-async function postToSheet(payload){
-  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
-  try{
-    const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),signal:ctrl.signal});
-    clearTimeout(to); const text=await res.text(); try{return JSON.parse(text);}catch{return{ok:false,error:"Bad JSON: "+text.slice(0,120)};}
-  }catch(e){clearTimeout(to);return{ok:false,error:e?.name==="AbortError"?"Timeout":(e?.message||"Network error")};}
-}
-
-form.addEventListener("submit", async (e)=>{
-  e.preventDefault(); showError("");
-  const honeypot=form.querySelector('input[name="website"]')?.value?.trim(); if(honeypot) return;
-  const name=form.name.value.trim(); let phone=form.phone.value.trim();
+form.addEventListener("submit",(e)=>{
+  e.preventDefault();showError("");
+  const name=form.name.value.trim();
+  let phone=form.phone.value.trim();
   if(!name||name.length<2){showError("Please enter your full name.");return;}
   if(!phone){showError("Please enter your phone number.");return;}
-  phone=normalizePhone(phone); if(!phone){showError("Invalid phone number. Use local or international format.");return;}
-  const whatsapp=whatsappLink(phone);
-  setBusy(true);
-  const payload={name,phone,whatsapp,userAgent:navigator.userAgent,referrer:document.referrer||""};
-  const resp=await postToSheet(payload); setBusy(false);
-  if(resp&&resp.ok){revealMain();}else{showError("Could not save. Please try again or ask staff.");console.error("Save error:",resp);}
+  phone=normalizePhone(phone);if(!phone){showError("Invalid phone number.");return;}
+  const payload={name,phone,whatsapp:whatsappLink(phone),userAgent:navigator.userAgent,referrer:document.referrer||""};
+  // Background save (no wait)
+  postToSheet(payload);
+  revealMain();
 });
-
-window.addEventListener('error', e=>{console.error('JS error:', e.message);showError('Unexpected error. Please refresh.');});
 </script>
 </body>
 </html>
-
