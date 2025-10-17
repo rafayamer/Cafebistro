@@ -100,7 +100,15 @@
         <button class="cp" id="copyPassBtn" type="button">Copy Password</button>
       </div>
       <button id="openWifi" class="cp open" type="button">Open Wi-Fi Settings</button>
-      <div id="iosBanner" class="banner">iPhone/iPad: Open <b>Settings → Wi-Fi</b>, tap “<span id="ssidInline"></span>”, then <b>Paste</b> the password you copied.</div>
+     <div id="iosBanner" class="banner">
+  <p><b>iPhone/iPad Users:</b> Scan this QR code to join Wi-Fi easily.</p>
+  <img id="wifiQR" src="11ae5b65-1f67-4d12-9370-83d933942c52.png" alt="Casa Bistro Wi-Fi QR"
+       style="display:block;margin:10px auto;width:160px;height:160px;border-radius:12px;background:#fff;padding:6px;">
+  <p style="font-size:13px;margin-top:8px;color:#e5e7eb">
+    Or manually connect to <b id="ssidInline"></b> and paste the password you copied.
+  </p>
+</div>
+
       <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically when Wi-Fi is on.</div>
     </div>
 
