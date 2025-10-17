@@ -170,7 +170,7 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 $("wifiBtn").onclick = ()=>{ $("wifiPanel").hidden=false; if(isIOS||isSafari)$("iosBanner").classList.add("show");
   if(isAndroid){ const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";
     a.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),600);} };
-$("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } else { $("iosBanner").classList.add("show"); } };
+$("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; $("openWifi").hidden= false;} else { $("iosBanner").classList.add("show"); $("openWifi").hidden= true; } };
 
 /* ===== Check-in Logic ===== */
 const overlay = $("checkinOverlay");
