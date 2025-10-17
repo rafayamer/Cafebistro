@@ -65,7 +65,7 @@
     <div class="field">
       <label class="label" for="phone">WhatsApp / Phone</label>
       <input class="input" id="phone" name="phone" type="tel" inputmode="tel"
-             placeholder="0308 8581919" required pattern="^[0-9+()\s-]{8,20}$" />
+             placeholder="0308 1234567 or +44 7000 111111" required pattern="^[0-9+()\s-]{8,20}$" />
     </div>
 
     <div class="err" id="formError"></div>
@@ -119,50 +119,52 @@ const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbN
 
 const $ = (id)=>document.getElementById(id);
 
-/* ===== Bind main page UI ===== */
+/* ===== Cache clear on reload ===== */
+window.addEventListener("load", () => {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    if (performance && performance.getEntriesByType("navigation")[0]?.type === "reload") {
+      window.location.href = window.location.origin + window.location.pathname;
+    }
+  } catch (e) {
+    console.warn("Could not clear cache:", e);
+  }
+});
+
+/* ===== Main Page UI ===== */
 $("menuBtn").href = MENU_URL;
 $("fbBtn").href   = FEEDBACK_URL;
 $("ssidText").textContent = WIFI_SSID;
 const ssidInline = document.getElementById("ssidInline");
 if (ssidInline) ssidInline.textContent = WIFI_SSID;
 
-// Password mask + long-press reveal
+/* ===== Wi-Fi Section ===== */
 const passEl = $("passText");
 const mask = s => s.replace(/./g, "•");
 passEl.textContent = mask(WIFI_PASS);
 let t; function show(){passEl.textContent=WIFI_PASS} function hide(){passEl.textContent=mask(WIFI_PASS)}
 ["pointerdown","touchstart","mousedown"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);t=setTimeout(show,120);} ));
 ["pointerup","pointerleave","touchend","touchcancel","mouseup","mouseleave"].forEach(e=>passEl.addEventListener(e,()=>{clearTimeout(t);hide();}));
-
 async function copyText(text){
   try{
-    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); }
-    else{ const i=document.createElement("input"); i.value=text; document.body.appendChild(i); i.select(); document.execCommand("copy"); i.remove(); }
-    alert("Copied!");
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); alert("Copied!"); }
+    else{ const i=document.createElement("input"); i.value=text; document.body.appendChild(i); i.select(); document.execCommand("copy"); i.remove(); alert("Copied!"); }
   }catch{ alert("Copy failed. Please long-press and copy."); }
 }
 $("copySsidBtn").onclick=()=>copyText(WIFI_SSID);
 $("copyPassBtn").onclick=()=>copyText(WIFI_PASS);
 
-// UA tailoring
 const ua = navigator.userAgent||"";
 const isAndroid = /Android/i.test(ua);
 const isIOS = /iPhone|iPad|iPod/i.test(ua);
 const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-
-// Wi-Fi actions
-$("wifiBtn").onclick = ()=>{
-  $("wifiPanel").hidden=false;
-  if(isIOS || isSafari){ $("iosBanner").classList.add("show"); }
-  if(isAndroid){
-    const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";
-    a.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end";
-    document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),600);
-  }
-};
+$("wifiBtn").onclick = ()=>{ $("wifiPanel").hidden=false; if(isIOS||isSafari)$("iosBanner").classList.add("show");
+  if(isAndroid){ const a=document.createElement("a"); a.style.display="none"; a.target="_self"; a.rel="noopener";
+    a.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),600);} };
 $("openWifi").onclick = ()=>{ if(isAndroid){ location.href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } else { $("iosBanner").classList.add("show"); } };
 
-/* ===== Check-in logic ===== */
+/* ===== Check-in Logic ===== */
 const overlay = $("checkinOverlay");
 const form = $("checkinForm");
 const errEl = $("formError");
@@ -176,91 +178,46 @@ function revealMain(){
   mainRoot.style.visibility = "visible";
   mainRoot.setAttribute("aria-hidden","false");
 }
-// Always clear cache / localStorage on reload or revisit
-window.addEventListener("load", () => {
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-    // Force reload without cache
-    if (performance && performance.getEntriesByType("navigation")[0]?.type === "reload") {
-      window.location.href = window.location.origin + window.location.pathname;
-    }
-  } catch (e) {
-    console.warn("Could not clear cache:", e);
-  }
-});
-
-const VISITED_KEY = "casa_bistro_checked_in_v1";
-
-
 function setBusy(b){ btn.disabled=b; btnSpin.style.display = b ? "inline-block" : "none"; btnText.textContent = b ? "Saving..." : "Save & Continue"; }
 function showError(msg){ errEl.textContent = msg || ""; }
 
-// Normalize phone numbers to +92xxxxxxxxxx (E.164)
-function normalizePhonePK(input) {
-  let num = input.replace(/[^\d+]/g, "");
-  if (num.startsWith("00")) num = "+" + num.slice(2);
-  if (/^0\d{10}$/.test(num)) num = "+92" + num.slice(1);
-  else if (/^3\d{9}$/.test(num)) num = "+92" + num;
-  else if (/^\+92\d{10}$/.test(num)) { /* fine */ }
-  else return null;
+// Universal phone normalization
+function normalizePhone(input){
+  if(!input) return null;
+  let num = input.replace(/[^\d+]/g,"");
+  if(num.startsWith("00")) num = "+"+num.slice(2);
+  if(/^0\d{10}$/.test(num)) num = "+92"+num.slice(1);
+  else if(/^3\d{9}$/.test(num)) num = "+92"+num;
+  if(!/^\+\d{10,15}$/.test(num)) return null;
   return num;
 }
+function whatsappLink(e164){ return e164 ? "https://wa.me/"+e164.replace("+","") : ""; }
 
-// CORS-safe POST
+// Send to Google Sheet
 async function postToSheet(payload){
-  const ctrl = new AbortController();
-  const to = setTimeout(()=>ctrl.abort(), 12000);
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload),
-      signal: ctrl.signal
-    });
-    clearTimeout(to);
-    const text = await res.text();
-    try { return JSON.parse(text); }
-    catch { return { ok:false, error:"Bad JSON: "+text.slice(0,120) }; }
-  } catch (e) {
-    clearTimeout(to);
-    return { ok:false, error: e?.name==="AbortError" ? "Timeout" : (e?.message || "Network error") };
-  }
+  const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
+  try{
+    const res=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),signal:ctrl.signal});
+    clearTimeout(to); const text=await res.text(); try{return JSON.parse(text);}catch{return{ok:false,error:"Bad JSON: "+text.slice(0,120)};}
+  }catch(e){clearTimeout(to);return{ok:false,error:e?.name==="AbortError"?"Timeout":(e?.message||"Network error")};}
 }
 
 form.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  showError("");
-
-  const honeypot = form.querySelector('input[name="website"]')?.value?.trim();
-  if (honeypot) return;
-
-  const name = form.name.value.trim();
-  let phone = form.phone.value.trim();
-  if (!name || name.length < 2){ showError("Please enter your full name."); return; }
-  if (!phone){ showError("Please enter your phone number."); return; }
-
-  phone = normalizePhonePK(phone);
-  if (!phone){ showError("Invalid phone number. Use format like 0308 8581919."); return; }
-
+  e.preventDefault(); showError("");
+  const honeypot=form.querySelector('input[name="website"]')?.value?.trim(); if(honeypot) return;
+  const name=form.name.value.trim(); let phone=form.phone.value.trim();
+  if(!name||name.length<2){showError("Please enter your full name.");return;}
+  if(!phone){showError("Please enter your phone number.");return;}
+  phone=normalizePhone(phone); if(!phone){showError("Invalid phone number. Use local or international format.");return;}
+  const whatsapp=whatsappLink(phone);
   setBusy(true);
-  const payload = { name, phone, userAgent:navigator.userAgent, referrer:document.referrer || "" };
-  const resp = await postToSheet(payload);
-  setBusy(false);
-
-  if (resp && resp.ok) {
-    try { localStorage.setItem(VISITED_KEY,"1"); } catch {}
-    revealMain();
-  } else {
-    showError("Could not save. Please try again or ask staff.");
-    console.error("Save error:", resp);
-  }
+  const payload={name,phone,whatsapp,userAgent:navigator.userAgent,referrer:document.referrer||""};
+  const resp=await postToSheet(payload); setBusy(false);
+  if(resp&&resp.ok){revealMain();}else{showError("Could not save. Please try again or ask staff.");console.error("Save error:",resp);}
 });
 
-window.addEventListener('error', e=>{
-  console.error('JS error:', e.message);
-  showError('Unexpected error. Please refresh.');
-});
+window.addEventListener('error', e=>{console.error('JS error:', e.message);showError('Unexpected error. Please refresh.');});
 </script>
 </body>
 </html>
+
