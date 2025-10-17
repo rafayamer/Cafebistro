@@ -176,11 +176,22 @@ function revealMain(){
   mainRoot.style.visibility = "visible";
   mainRoot.setAttribute("aria-hidden","false");
 }
+// Always clear cache / localStorage on reload or revisit
+window.addEventListener("load", () => {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    // Force reload without cache
+    if (performance && performance.getEntriesByType("navigation")[0]?.type === "reload") {
+      window.location.href = window.location.origin + window.location.pathname;
+    }
+  } catch (e) {
+    console.warn("Could not clear cache:", e);
+  }
+});
 
 const VISITED_KEY = "casa_bistro_checked_in_v1";
-try {
-  if (localStorage.getItem(VISITED_KEY) === "1") revealMain();
-} catch { /* ignore */ }
+
 
 function setBusy(b){ btn.disabled=b; btnSpin.style.display = b ? "inline-block" : "none"; btnText.textContent = b ? "Saving..." : "Save & Continue"; }
 function showError(msg){ errEl.textContent = msg || ""; }
