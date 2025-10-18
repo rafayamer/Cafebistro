@@ -13,7 +13,6 @@
     color:var(--text); min-height:100vh; overflow-x:hidden; overflow-y:hidden;
   }
 
-  /* Panels (glassmorphic, ~40% transparency) */
   .form-card,.card{
     width:100%;max-width:520px;background:rgba(0,70,67,.4);color:var(--text);
     border-radius:24px;padding:32px 28px;backdrop-filter:blur(16px) saturate(160%);
@@ -37,7 +36,6 @@
   }
   .input:focus{border-color:var(--accent);box-shadow:0 0 10px rgba(0,70,67,.7)}
 
-  /* Buttons (60% transparent) */
   .btn-main,.btn,.cp,.open{
     display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;
     border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(0,70,67,.6);
@@ -47,7 +45,7 @@
   .btn-main:hover,.btn:hover,.cp:hover,.open:hover{box-shadow:0 0 18px rgba(0,70,67,.9);transform:translateY(-2px)}
 
   .err{color:#fecaca;font-size:13px;min-height:18px;margin-top:6px}
-  .note{color:var(--muted);font-size:12px;margin-top:12px;text-align:center}
+  .note{color:#cbd5e1;font-size:12px;margin-top:12px;text-align:center}
   .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   h1{font-size:26px;text-shadow:0 0 10px rgba(0,70,67,.7)}
   .sub{color:var(--muted);font-size:15px;margin:0 0 18px}
@@ -143,7 +141,7 @@ const MENU_URL  = "casabistro final_compressed.pdf";
 const QR_SRC    = "qr.png";
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
 
-/* --- Background save helper --- */
+/* --- Background save helper (non-blocking) --- */
 function postToSheet(payload){
   try{
     fetch(SCRIPT_URL, {
@@ -151,47 +149,44 @@ function postToSheet(payload){
       headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids CORS preflight
       body: JSON.stringify(payload)
     }).catch(()=>{});
-  }catch(e){ /* ignore network errors */ }
+  }catch(e){}
 }
 
-/* --- Phone normalization to E.164 ---
-   Rules:
-   - '00' prefix => replace with '+'
-   - Already has '+' => keep, clean non-digits, validate 10–15 digits
-   - Pakistan local (03xxxxxxxxx / 3xxxxxxxxx / 0 + 9–10 more digits) => +92…
-   - Bare '92xxxxxxxxxx' => +92…
-*/
+/* --- Phone normalization to E.164 (robust) --- */
 function normalizePhone(input){
   if(!input) return null;
+  let s = String(input).trim().replace(/[\s\-()]/g,'');   // strip spaces/dashes/brackets
 
-  let s = String(input).trim();
-  // Remove spaces, dashes, parentheses
-  s = s.replace(/[\s\-()]/g,'');
   // 00 -> +
   if (s.startsWith('00')) s = '+' + s.slice(2);
 
-  // If starts with + (international)
+  // Already +
   if (s.startsWith('+')){
-    const digits = s.slice(1).replace(/\D/g,'');
-    if (digits.length >= 10 && digits.length <= 15) return '+' + digits;
-    return null;
+    const d = s.slice(1).replace(/\D/g,'');
+    return (d.length >= 10 && d.length <= 15) ? ('+' + d) : null;
   }
 
-  // If starts with 92 (missing +)
-  if (/^92\d{10}$/.test(s)) return '+' + s;
-
-  // Strip non-digits for local handling
+  // Pakistan — common local forms
+  if (/^92\d{10}$/.test(s)) return '+' + s;      // missing '+'
   const d = s.replace(/\D/g,'');
+  if (/^03\d{9}$/.test(d))  return '+92' + d.slice(1); // 03xxxxxxxxx
+  if (/^3\d{9}$/.test(d))   return '+92' + d;          // 3xxxxxxxxx
+  if (/^0\d{9,10}$/.test(d))return '+92' + d.slice(1); // trunk 0
 
-  // Pakistan mobiles
-  if (/^03\d{9}$/.test(d)) return '+92' + d.slice(1);  // 03xxxxxxxxx
-  if (/^3\d{9}$/.test(d))  return '+92' + d;           // 3xxxxxxxxx
+  // International with missing '+' (10–15 digits not starting 0)
+  if (/^[1-9]\d{9,14}$/.test(d)) return '+' + d;
 
-  // Broader Pakistan (leading 0 trunk, 10–11 total digits e.g., landline)
-  if (/^0\d{9,10}$/.test(d)) return '+92' + d.slice(1);
-
-  // If we reach here, it lacks a country code and doesn't look PK
   return null;
+}
+
+/* Split E.164 into country code + national number for Sheets columns */
+function splitE164(e164){
+  if(!e164) return { country_code:'', national_number:'' };
+  // Heuristic: take 1–3 leading digits as country code, rest as national
+  // (Good for +92, +44, +971, +1, etc. — we only need to write the code prefix)
+  const m = /^\+(\d{1,3})(\d{5,})$/.exec(e164);
+  return m ? { country_code: '+'+m[1], national_number: m[2] }
+           : { country_code: e164.replace(/(\+\d+).*/,'$1'), national_number: e164.replace(/^\+\d{1,3}/,'') };
 }
 
 function waLink(e164){ return e164 ? "https://wa.me/" + e164.slice(1) : ""; }
@@ -219,7 +214,7 @@ document.getElementById("ssidInline").textContent = WIFI_SSID;
 wifiQR.src = QR_SRC;
 passText.textContent = "••••••••";
 
-/* Detect iOS */
+/* Detect iOS (show QR, hide Open Settings) */
 const ua = navigator.userAgent || "";
 const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 if (isIOS) { iosBanner.classList.add("show"); openWifi.style.display = "none"; }
@@ -244,20 +239,18 @@ form.addEventListener("submit", (e) => {
   const phoneRaw  = form.phone.value.trim();
   const phoneE164 = normalizePhone(phoneRaw);
 
-  if (!name || name.length < 2) {
-    errEl.textContent = "Please enter your full name.";
-    return;
-  }
-  if (!phoneE164) {
-    errEl.textContent = "Please add a valid phone number (include country code if not Pakistani).";
-    return;
-  }
+  if (!name || name.length < 2) { errEl.textContent = "Please enter your full name."; return; }
+  if (!phoneE164) { errEl.textContent = "Please add a valid phone number (include country code if not Pakistani)."; return; }
+
+  const split = splitE164(phoneE164);
 
   // Send normalized data to Sheets (non-blocking)
   postToSheet({
     name,
-    phone: phoneE164,          // normalized to E.164
-    phone_raw: phoneRaw,       // original input for reference
+    phone: phoneE164,               // E.164 — includes country code first
+    country_code: split.country_code,   // e.g. "+92"
+    national_number: split.national_number, // e.g. "3088581919"
+    phone_raw: phoneRaw,
     whatsapp: waLink(phoneE164),
     userAgent: navigator.userAgent,
     referrer: document.referrer || ""
