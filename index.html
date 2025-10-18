@@ -12,21 +12,17 @@
     background:url('background.jpg') center center/cover no-repeat fixed;
     color:var(--text); min-height:100vh; overflow-x:hidden; overflow-y:hidden;
   }
-
-  /* Panels (glassmorphic, ~40% transparency) */
   .form-card,.card{
     width:100%;max-width:520px;background:rgba(0,70,67,.4);color:var(--text);
     border-radius:24px;padding:32px 28px;backdrop-filter:blur(16px) saturate(160%);
     box-shadow:0 0 30px rgba(0,70,67,.5), inset 0 0 8px rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.18);
   }
-
   .overlay{
     position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     padding:20px;background:rgba(0,0,0,.3);backdrop-filter:blur(6px);z-index:50;
     transition:opacity .35s ease;
   }
-
   .form-card h2{font-size:26px;font-weight:700;text-shadow:0 0 12px rgba(0,70,67,.8);margin-bottom:10px}
   .form-sub{color:var(--muted);font-size:14px;margin:0 0 20px}
   .field{display:grid;gap:6px;margin-bottom:16px}
@@ -36,8 +32,6 @@
     background:rgba(0,0,0,.25);color:var(--text);font-size:16px;outline:none;transition:all .2s ease;
   }
   .input:focus{border-color:var(--accent);box-shadow:0 0 10px rgba(0,70,67,.7)}
-
-  /* Buttons (60% transparent) */
   .btn-main,.btn,.cp,.open{
     display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;
     border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(0,70,67,.6);
@@ -45,14 +39,12 @@
     backdrop-filter:blur(10px) saturate(120%);
   }
   .btn-main:hover,.btn:hover,.cp:hover,.open:hover{box-shadow:0 0 18px rgba(0,70,67,.9);transform:translateY(-2px)}
-
   .err{color:#fecaca;font-size:13px;min-height:18px;margin-top:6px}
   .note{color:var(--muted);font-size:12px;margin-top:12px;text-align:center}
   .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   h1{font-size:26px;text-shadow:0 0 10px rgba(0,70,67,.7)}
   .sub{color:var(--muted);font-size:15px;margin:0 0 18px}
   .grid{display:grid;gap:14px}
-
   .wifiBox{background:rgba(0,70,67,.4);border:1px dashed rgba(255,255,255,.2);
     border-radius:16px;padding:16px;margin-top:16px;backdrop-filter:blur(12px)}
   .rowx{display:flex;gap:10px;align-items:center;justify-content:space-between}
@@ -61,7 +53,6 @@
   .banner.show{display:block}
   .hint{color:#e2e8f0;font-size:13px;margin-top:6px}
   .hidden-initial{visibility:hidden}
-
   @media (max-width:600px){
     .form-card,.card{padding:24px 20px;border-radius:18px}
     h1,.form-card h2{font-size:22px}
@@ -139,8 +130,22 @@
 /* --- Config --- */
 const WIFI_SSID = "Casa_Guest";
 const WIFI_PASS = "Pakistan@786";
-const MENU_URL  = "casabistro final_compressed.pdf";   // make sure this file exists beside index.html
+const MENU_URL  = "casabistro final_compressed.pdf";
 const QR_SRC    = "qr.png";
+
+/* ===== ADDED: your Apps Script endpoint ===== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW7wtqtaFsBuGnDbNdcNIT5b7fGmuz0sQpndpMgXUYL6fQWlif1evi-5g9Fx3TavkjBg/exec";
+
+/* ===== ADDED: background save helper (no UI change) ===== */
+function postToSheet(payload){
+  try{
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids CORS preflight
+      body: JSON.stringify(payload)
+    }).catch(()=>{});
+  }catch(e){ /* ignore network errors */ }
+}
 
 /* --- Elements --- */
 const overlay   = document.getElementById("checkinOverlay");
@@ -165,51 +170,42 @@ document.getElementById("ssidInline").textContent = WIFI_SSID;
 wifiQR.src = QR_SRC;
 passText.textContent = "••••••••";
 
-/* Detect iOS (iPhone/iPad) */
+/* Detect iOS */
 const ua = navigator.userAgent || "";
 const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+if (isIOS) { iosBanner.classList.add("show"); openWifi.style.display = "none"; }
+else { iosBanner.classList.remove("show"); openWifi.style.display = "inline-flex"; }
 
-/* On iOS: show QR and hide the "Open Wi-Fi Settings" button */
-if (isIOS) {
-  iosBanner.classList.add("show");
-  openWifi.style.display = "none";
-} else {
-  iosBanner.classList.remove("show");
-  openWifi.style.display = "inline-flex";
-}
-
-/* Open Wi-Fi settings on Android (best-effort) */
+/* Android Wi-Fi settings */
 openWifi.addEventListener("click", () => {
-  try {
-    location.href = "intent:#Intent;action=android.settings.WIFI_SETTINGS;end";
-  } catch {}
+  try { location.href = "intent:#Intent;action=android.settings.WIFI_SETTINGS;end"; } catch {}
 });
 
 /* Toggle Wi-Fi panel */
-wifiBtn.addEventListener("click", () => {
-  wifiPanel.hidden = !wifiPanel.hidden;
-});
+wifiBtn.addEventListener("click", () => { wifiPanel.hidden = !wifiPanel.hidden; });
 
 /* Copy helpers */
 copySsid.onclick = () => navigator.clipboard.writeText(WIFI_SSID).then(()=>alert("SSID copied!"));
 copyPass.onclick = () => navigator.clipboard.writeText(WIFI_PASS).then(()=>alert("Password copied!"));
 
-/* Form -> reveal main */
+/* Form -> reveal main + ADDED background save */
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const name  = form.name.value.trim();
   const phone = form.phone.value.trim();
 
-  if (!name || name.length < 2) {
-    errEl.textContent = "Please enter your full name.";
-    return;
-  }
-  if (!/^[0-9+()\s-]{8,20}$/.test(phone)) {
-    errEl.textContent = "Please enter a valid phone number.";
-    return;
-  }
+  if (!name || name.length < 2) { errEl.textContent = "Please enter your full name."; return; }
+  if (!/^[0-9+()\s-]{8,20}$/.test(phone)) { errEl.textContent = "Please enter a valid phone number."; return; }
 
-  // Hide the overlay and show the main panel
+  /* ADDED: send to Google Sheet in the background (non-blocking) */
+  postToSheet({
+    name,
+    phone,
+    userAgent: navigator.userAgent,
+    referrer: document.referrer || ""
+  });
+
+  /* Show main panel immediately */
   overlay.style.opacity = "0";
   setTimeout(() => {
     overlay.style.display = "none";
