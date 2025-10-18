@@ -17,7 +17,6 @@
     color:var(--text);
     min-height:100vh;
     overflow-x:hidden;
-    overflow-y:hidden; /* prevent scroll movement between panels */
   }
 
   /* ===== PANELS (40% transparent glassmorphic) ===== */
@@ -31,6 +30,12 @@
     backdrop-filter:blur(16px) saturate(160%);
     box-shadow:0 0 30px rgba(0,70,67,0.5), inset 0 0 8px rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.18);
+    animation:fadeIn 0.6s ease both;
+  }
+
+  @keyframes fadeIn {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
   }
 
   .overlay{
@@ -43,6 +48,7 @@
     background:rgba(0,0,0,0.3);
     backdrop-filter:blur(6px);
     z-index:50;
+    transition:opacity .4s ease;
   }
 
   .form-card h2{
@@ -180,13 +186,13 @@
     <p class="sub">Choose an option below</p>
 
     <div class="grid">
-      <a id="menuBtn" class="btn" href="#" target="_blank" rel="noopener">📜 Menu</a>
+      <a id="menuBtn" class="btn" href="casabistro-menu.pdf" target="_blank" rel="noopener">📜 Menu</a>
       <button id="wifiBtn" class="btn" type="button">📶 Join Wi-Fi</button>
     </div>
 
     <div id="wifiPanel" class="wifiBox" hidden>
       <div class="rowx">
-        <div class="pill" id="ssidText">SSID</div>
+        <div class="pill" id="ssidText">Casa_Guest</div>
         <button class="cp" id="copySsidBtn" type="button">Copy Name</button>
       </div>
       <div class="rowx" style="margin-top:8px">
@@ -200,7 +206,7 @@
         <img id="wifiQR" src="qr.png" alt="Casa Bistro Wi-Fi QR"
              style="display:block;margin:10px auto;width:160px;height:160px;border-radius:12px;background:#fff;padding:6px;">
         <p style="font-size:13px;margin-top:8px;color:#e5e7eb">
-          Or manually connect to <b id="ssidInline"></b> and paste the password you copied.
+          Or manually connect to <b id="ssidInline">Casa_Guest</b> and paste the password you copied.
         </p>
       </div>
 
@@ -209,5 +215,54 @@
     <p class="note">Trouble? Ask staff for help.</p>
   </div>
 </div>
+
+<script>
+/* ========= JS Logic ========= */
+const overlay = document.getElementById("checkinOverlay");
+const form = document.getElementById("checkinForm");
+const errEl = document.getElementById("formError");
+const mainRoot = document.getElementById("mainRoot");
+const wifiBtn = document.getElementById("wifiBtn");
+const wifiPanel = document.getElementById("wifiPanel");
+const ssidText = document.getElementById("ssidText");
+const passText = document.getElementById("passText");
+const copySsidBtn = document.getElementById("copySsidBtn");
+const copyPassBtn = document.getElementById("copyPassBtn");
+
+const WIFI_PASS = "Pakistan@786";
+passText.textContent = "••••••••";
+
+/* Form submission -> show main page */
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
+
+  if (!name || name.length < 2) {
+    errEl.textContent = "Please enter your full name.";
+    return;
+  }
+  if (!phone.match(/^[0-9+()\s-]{8,20}$/)) {
+    errEl.textContent = "Please enter a valid phone number.";
+    return;
+  }
+
+  // hide form and show main
+  overlay.style.opacity = "0";
+  setTimeout(() => {
+    overlay.style.display = "none";
+    mainRoot.classList.remove("hidden-initial");
+    mainRoot.setAttribute("aria-hidden", "false");
+  }, 400);
+});
+
+/* Wi-Fi logic */
+wifiBtn.addEventListener("click", () => {
+  wifiPanel.hidden = !wifiPanel.hidden;
+});
+
+copySsidBtn.onclick = () => navigator.clipboard.writeText(ssidText.textContent).then(()=>alert("SSID copied!"));
+copyPassBtn.onclick = () => navigator.clipboard.writeText(WIFI_PASS).then(()=>alert("Password copied!"));
+</script>
 </body>
 </html>
