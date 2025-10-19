@@ -17,37 +17,39 @@
     padding:0;
   }
 
+  /* --- Body Background --- */
   body{
     font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
-    background:url('bg.jpg') center center/cover no-repeat fixed;
+    /* bg.png is visible but faint; panel will blur it */
+    background:rgba(0,0,0,0) url('bg.png') center center/cover no-repeat fixed;
+    background-blend-mode:normal;
     color:var(--text);
     height:100vh;
     width:100vw;
-    overflow:hidden; /* prevent scroll or leak */
+    overflow:hidden;
     display:flex;
     align-items:center;
     justify-content:center;
   }
 
-  /* --- Universal Panel Container (fixed & blur enhanced) --- */
+  /* --- Panel (Glassmorphic, high blur, fixed center) --- */
   .form-card,
   .card{
     position:relative;
     width:clamp(320px, 90vw, 520px);
-    height:auto;
     max-height:90vh;
-    background:rgba(0,70,67,0.35);
+    background:rgba(0,70,67,0.25); /* more translucent; emphasize blur */
     color:var(--text);
     border-radius:24px;
     padding:32px 28px;
-    backdrop-filter:blur(40px) saturate(180%);
-    -webkit-backdrop-filter:blur(40px) saturate(180%);
-    box-shadow:0 0 50px rgba(0,70,67,0.7), inset 0 0 10px rgba(255,255,255,0.15);
-    border:1px solid rgba(255,255,255,0.25);
-    overflow:hidden; /* contain inner content fully */
+    backdrop-filter:blur(45px) saturate(200%);
+    -webkit-backdrop-filter:blur(45px) saturate(200%);
+    box-shadow:0 0 50px rgba(0,70,67,0.6), inset 0 0 10px rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.2);
+    overflow:hidden;
   }
 
-  /* Overlay (always centered and fixed) */
+  /* Overlay container for form (also fixed and centered) */
   .overlay{
     position:fixed;
     inset:0;
@@ -55,9 +57,9 @@
     align-items:center;
     justify-content:center;
     padding:16px;
-    background:rgba(0,0,0,0.35);
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
+    background:rgba(0,0,0,0.1); /* nearly transparent */
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
     z-index:100;
     transition:opacity .35s ease;
   }
@@ -116,7 +118,7 @@
     padding:14px 18px;
     border-radius:14px;
     border:1px solid rgba(255,255,255,0.25);
-    background:rgba(0,70,67,0.65);
+    background:rgba(0,70,67,0.55);
     color:#fff;
     font-weight:700;
     cursor:pointer;
@@ -149,7 +151,7 @@
     text-align:center;
   }
 
-  /* Wrapper keeps center alignment */
+  /* Wrapper (centers main content) */
   .wrap{
     position:fixed;
     inset:0;
@@ -157,7 +159,7 @@
     align-items:center;
     justify-content:center;
     padding:20px;
-    overflow:hidden; /* absolutely no leak */
+    overflow:hidden;
   }
 
   h1{
@@ -178,15 +180,15 @@
     gap:14px;
   }
 
-  /* Wi-Fi box and content */
+  /* Wi-Fi Box */
   .wifiBox{
-    background:rgba(0,70,67,0.45);
+    background:rgba(0,70,67,0.35);
     border:1px dashed rgba(255,255,255,0.25);
     border-radius:16px;
     padding:16px;
     margin-top:16px;
-    backdrop-filter:blur(18px) saturate(150%);
-    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
     overflow:hidden;
   }
 
@@ -227,14 +229,10 @@
     text-align:center;
   }
 
-  .hidden-initial{
-    visibility:hidden;
-  }
+  .hidden-initial{visibility:hidden;}
 
-  /* --- Responsive tweaks --- */
   @media (max-width:600px){
-    .form-card,
-    .card{
+    .form-card,.card{
       padding:24px 20px;
       border-radius:18px;
       max-width:92vw;
@@ -246,6 +244,7 @@
     }
   }
 </style>
+
 
 </head>
 <body>
