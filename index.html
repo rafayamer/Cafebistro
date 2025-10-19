@@ -10,63 +10,46 @@
     --accent:#004643;
     --text:#f8fafc;
     --muted:#cbd5e1;
-    /* unified outer padding that scales with screen */
     --pad: clamp(12px, 3vw, 24px);
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
 
-  /* --- Body background: image fully visible, no filters --- */
+  /* bg image fully visible, no filters */
   body{
     font-family:system-ui, Segoe UI, Roboto, Arial, sans-serif;
-    background:url('bg.jpg') center center / cover no-repeat;
+    background:url('bg.png') center center / cover no-repeat;
     color:var(--text);
-    /* use dynamic viewport units so iOS doesn’t crop */
-    height:100svh;
+    height:100svh;           /* iOS-safe viewport units */
     min-height:100dvh;
     width:100vw;
-    /* don’t add padding to body (it shrinks the viewport on iOS) */
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;         /* no page scroll */
     padding:0;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
   }
 
-  /* --- Overlay / Main wrap: apply safe-area-aware padding --- */
+  /* center containers; apply safe-area padding; still no scroll */
   .overlay,
   .wrap{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    /* padding that respects iOS safe areas */
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
     padding:
       calc(var(--pad) + env(safe-area-inset-top))
       calc(var(--pad) + env(safe-area-inset-right))
       calc(var(--pad) + env(safe-area-inset-bottom))
       calc(var(--pad) + env(safe-area-inset-left));
-    background:transparent;           /* keep bg fully visible */
-    backdrop-filter:none;
-    -webkit-backdrop-filter:none;
+    background:transparent;
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+    overflow:hidden;        /* no scroll in containers */
     z-index:100;
     transition:opacity .35s ease;
-    /* allow scroll if absolutely necessary (but not body) */
-    overflow:auto;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;
   }
 
-  /* --- Panel (only thing that’s blurred) --- */
+  /* the only blurred thing */
   .form-card,
   .card{
     position:relative;
-    width:min(520px, 100%);           /* never wider than viewport */
-    /* cap the height to the visible viewport minus padding */
-    max-height:calc(
-      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--pad)*2
-    );
+    width:min(520px, 100%);
     background:rgba(255,255,255,.10);
     backdrop-filter:blur(25px) saturate(180%);
     -webkit-backdrop-filter:blur(25px) saturate(180%);
@@ -74,22 +57,20 @@
     box-shadow:0 12px 40px rgba(0,0,0,.35);
     border-radius:24px;
     padding:clamp(20px, 5vw, 40px);
-    overflow:auto;                     /* scroll inside if content grows */
-    -webkit-overflow-scrolling:touch;
+    overflow:hidden;                 /* no internal scroll */
+    transform-origin:center top;     /* will be scaled via JS if needed */
+    will-change:transform;
   }
 
-  /* subtle rim glow */
-  .form-card::before,
-  .card::before{
-    content:"";
-    position:absolute; inset:0; border-radius:inherit;
+  /* rim glow */
+  .form-card::before, .card::before{
+    content:""; position:absolute; inset:0; border-radius:inherit;
     background:linear-gradient(145deg, rgba(255,255,255,.25), rgba(255,255,255,.05));
     pointer-events:none;
     mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite:xor; mask-composite:exclude;
   }
 
-  /* headings & subtext */
   h1, .form-card h2{
     font-size:clamp(20px, 4vw, 28px);
     font-weight:700; text-align:center;
@@ -118,7 +99,6 @@
   }
   .input:focus{ border-color:var(--accent); box-shadow:0 0 12px rgba(0,70,67,.8); }
 
-  /* Buttons */
   .btn-main, .btn, .cp, .open{
     display:flex; align-items:center; justify-content:center; gap:10px;
     padding:clamp(12px, 3vw, 16px);
@@ -132,9 +112,6 @@
     box-shadow:0 0 22px rgba(0,70,67,.95); transform:translateY(-2px);
   }
 
-  .err{ color:#fecaca; font-size:13px; min-height:18px; margin-top:6px; text-align:center; }
-  .note{ color:#cbd5e1; font-size:12px; margin-top:12px; text-align:center; }
-
   .grid{ display:grid; gap:14px; }
 
   .wifiBox{
@@ -142,7 +119,6 @@
     border:1px dashed rgba(255,255,255,.25);
     border-radius:16px; padding:16px; margin-top:16px;
     backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
-    overflow:hidden;
   }
   .rowx{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
   .pill{
@@ -154,10 +130,9 @@
   .hint{ color:#e2e8f0; font-size:13px; margin-top:6px; text-align:center; }
   .hidden-initial{ visibility:hidden; }
 
-  /* QR image responsive so it never forces overflow */
-  #wifiQR{ width:min(70vw, 220px); height:auto; display:block; margin:10px auto; }
+  /* responsive QR so it never forces overflow */
+  #wifiQR{ width:min(65vw, 200px); height:auto; display:block; margin:10px auto; }
 
-  /* Mobile tweaks */
   @media (max-width:600px){
     .form-card, .card{ border-radius:18px; }
   }
