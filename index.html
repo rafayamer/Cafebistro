@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Casa Bistro – Welcome</title>
+
 <style>
   :root{
     --accent:#004643;
@@ -17,12 +18,10 @@
     padding:0;
   }
 
-  /* --- Body Background --- */
+  /* --- Body Background (FULLY visible image) --- */
   body{
     font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
-    /* bg.png is visible but faint; panel will blur it */
-    background:rgba(0,0,0,0) url('bg.png') center center/cover no-repeat fixed;
-    background-blend-mode:normal;
+    background:url('bg.png') center center/cover no-repeat fixed; /* bg.png clearly visible */
     color:var(--text);
     height:100vh;
     width:100vw;
@@ -32,24 +31,40 @@
     justify-content:center;
   }
 
-  /* --- Panel (Glassmorphic, high blur, fixed center) --- */
+  /* --- Panels (Glassmorphic) --- */
   .form-card,
   .card{
     position:relative;
     width:clamp(320px, 90vw, 520px);
     max-height:90vh;
-    background:rgba(0,70,67,0.25); /* more translucent; emphasize blur */
+    background:rgba(0,70,67,0.35); /* semi-transparent for glass look */
     color:var(--text);
     border-radius:24px;
     padding:32px 28px;
-    backdrop-filter:blur(45px) saturate(200%);
-    -webkit-backdrop-filter:blur(45px) saturate(200%);
-    box-shadow:0 0 50px rgba(0,70,67,0.6), inset 0 0 10px rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.2);
+    backdrop-filter:blur(45px) saturate(220%) brightness(1.05);
+    -webkit-backdrop-filter:blur(45px) saturate(220%) brightness(1.05);
+    box-shadow:
+      0 0 60px rgba(0,70,67,0.55),
+      inset 0 0 10px rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.25);
     overflow:hidden;
   }
 
-  /* Overlay container for form (also fixed and centered) */
+  /* --- Subtle Rim Glow for Depth --- */
+  .form-card::before,
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+    pointer-events:none;
+    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+  }
+
+  /* Overlay container for check-in (centered) */
   .overlay{
     position:fixed;
     inset:0;
@@ -57,9 +72,9 @@
     align-items:center;
     justify-content:center;
     padding:16px;
-    background:rgba(0,0,0,0.1); /* nearly transparent */
-    backdrop-filter:blur(6px);
-    -webkit-backdrop-filter:blur(6px);
+    background:rgba(0,0,0,0.1); /* faint dark veil, not hiding bg.png */
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
     z-index:100;
     transition:opacity .35s ease;
   }
@@ -67,8 +82,9 @@
   .form-card h2{
     font-size:26px;
     font-weight:700;
-    text-shadow:0 0 14px rgba(0,70,67,0.9);
+    text-shadow:0 0 12px rgba(0,70,67,0.9);
     margin-bottom:10px;
+    text-align:center;
   }
 
   .form-sub{
@@ -151,7 +167,7 @@
     text-align:center;
   }
 
-  /* Wrapper (centers main content) */
+  /* Main wrapper */
   .wrap{
     position:fixed;
     inset:0;
@@ -180,7 +196,6 @@
     gap:14px;
   }
 
-  /* Wi-Fi Box */
   .wifiBox{
     background:rgba(0,70,67,0.35);
     border:1px dashed rgba(255,255,255,0.25);
@@ -244,6 +259,7 @@
     }
   }
 </style>
+
 
 
 </head>
