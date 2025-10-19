@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
 <title>Casa Bistro – Welcome</title>
 
 <style>
@@ -18,7 +20,7 @@
   /* bg image fully visible, no filters */
   body{
     font-family:system-ui, Segoe UI, Roboto, Arial, sans-serif;
-    background:url('bg.png') center center / cover no-repeat;
+    background:url('bg.jpg') center center / cover no-repeat;
     color:var(--text);
     height:100svh;           /* iOS-safe viewport units */
     min-height:100dvh;
@@ -41,9 +43,10 @@
     background:transparent;
     backdrop-filter:none; -webkit-backdrop-filter:none;
     overflow:hidden;        /* no scroll in containers */
-    z-index:100;
     transition:opacity .35s ease;
   }
+  .overlay{ z-index:100; }
+  .wrap{ z-index:90; }
 
   /* the only blurred thing */
   .form-card,
@@ -137,8 +140,6 @@
     .form-card, .card{ border-radius:18px; }
   }
 </style>
-
-
 </head>
 <body>
 
@@ -381,6 +382,53 @@ form.addEventListener("submit", (e) => {
     mainRoot.setAttribute("aria-hidden","false");
   }, 350);
 });
+
+/* ---------- Auto-fit for phones (even in "Desktop site" mode) ---------- */
+(function(){
+  const $ = (s,p=document)=>p.querySelector(s);
+
+  function availH(container){
+    const vv = window.visualViewport ? visualViewport.height : window.innerHeight;
+    const cs = getComputedStyle(container);
+    return vv - parseFloat(cs.paddingTop||0) - parseFloat(cs.paddingBottom||0);
+  }
+  function scaleToFit(el, container){
+    if(!el || !container) return;
+    el.style.transform = 'scale(1)';
+    const h = el.getBoundingClientRect().height;
+    const s = Math.min(1, (availH(container) - 2) / h);
+    el.style.transformOrigin = 'center top';
+    el.style.transform = `scale(${s})`;
+  }
+  function isPhone(){ return /iPhone|iPod|Android/i.test(navigator.userAgent); }
+  function desktopModeOnPhone(){
+    const vw = (window.visualViewport ? visualViewport.width : window.innerWidth);
+    const sw = screen.width || vw;
+    return isPhone() && vw > sw + 40; // viewport wider than screen ⇒ desktop mode
+  }
+  function fitAll(){
+    scaleToFit($('#checkinForm'), $('#checkinOverlay'));
+    scaleToFit($('#mainRoot .card'), $('#mainRoot'));
+  }
+  function ensureViewport(){
+    if (!desktopModeOnPhone()) { fitAll(); return; }
+    let meta = document.querySelector('meta[name=viewport]');
+    if (!meta){
+      meta = document.createElement('meta');
+      meta.name = 'viewport';
+      document.head.appendChild(meta);
+    }
+    meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover';
+    requestAnimationFrame(fitAll);
+  }
+  window.addEventListener('load', ensureViewport, {passive:true});
+  window.addEventListener('resize', ensureViewport, {passive:true});
+  if (window.visualViewport){
+    visualViewport.addEventListener('resize', ensureViewport, {passive:true});
+    visualViewport.addEventListener('scroll', ensureViewport, {passive:true});
+  }
+  new MutationObserver(ensureViewport).observe(document.body, {subtree:true, childList:true, attributes:true});
+})();
 </script>
 </body>
 </html>
