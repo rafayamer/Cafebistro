@@ -19,35 +19,39 @@
   }
 
   /* --- Body Background (FULLY visible image) --- */
-body {
-  font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
-  background: url('bg.jpg') center center/cover no-repeat fixed;
-  background-color: transparent; /* remove dark fallback */
-  background-blend-mode: normal;
-  color: var(--text);
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+  body {
+    font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    background: url('bg.png') center center/cover no-repeat fixed;
+    background-color: transparent;
+    background-blend-mode: normal;
+    color: var(--text);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 3vw, 40px); /* keeps margin from edges */
+  }
 
   /* --- Panels (Glassmorphic) --- */
-
-/* --- Panel (only this part blurred) --- */
-.form-card,
-.card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  border-radius: 24px;
-  position: relative;
-}
-
+  /* Only the panel is blurred */
+  .form-card,
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 520px;                 /* desktop cap */
+    max-height: 90vh;                 /* prevent leakage on short screens */
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    border-radius: 24px;
+    padding: clamp(20px, 5vw, 40px);  /* scales with screen */
+    overflow: auto;                   /* scroll inside if needed */
+    -webkit-overflow-scrolling: touch;
+  }
 
   /* --- Subtle Rim Glow for Depth --- */
   .form-card::before,
@@ -63,41 +67,41 @@ body {
     mask-composite:exclude;
   }
 
-  /* Overlay container for check-in (centered) */
-  /* --- Overlay (REMOVE blur or dim) --- */
-.overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: transparent; /* ✅ no overlay tint */
-  backdrop-filter: none; /* ✅ no blur on bg.png */
-  -webkit-backdrop-filter: none;
-  z-index: 100;
-  transition: opacity .35s ease;
-}
+  /* --- Overlay (centered, no blur so bg stays crisp) --- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 3vw, 40px);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 100;
+    transition: opacity 0.35s ease;
+  }
 
-  .form-card h2{
-    font-size:26px;
+  /* --- Headings & subtext (responsive) --- */
+  h1, .form-card h2{
+    font-size: clamp(20px, 4vw, 28px);
     font-weight:700;
-    text-shadow:0 0 12px rgba(0,70,67,0.9);
+    text-shadow:0 0 12px rgba(0,0,0,0.3);
     margin-bottom:10px;
     text-align:center;
   }
 
-  .form-sub{
+  .form-sub, .sub{
     color:var(--muted);
-    font-size:14px;
-    margin:0 0 20px;
+    font-size: clamp(13px, 2vw, 15px);
+    margin: 0 0 clamp(10px, 3vw, 20px);
     text-align:center;
   }
 
   .field{
     display:grid;
-    gap:6px;
-    margin-bottom:16px;
+    gap:8px;
+    margin-bottom: clamp(14px, 3vw, 20px);
   }
 
   .label{
@@ -107,12 +111,12 @@ body {
 
   .input{
     width:100%;
-    padding:14px 16px;
+    padding: clamp(12px, 3vw, 16px);
     border-radius:14px;
     border:1px solid rgba(255,255,255,0.25);
     background:rgba(0,0,0,0.25);
     color:var(--text);
-    font-size:16px;
+    font-size: clamp(14px, 2vw, 16px);
     outline:none;
     transition:all .2s ease;
   }
@@ -131,10 +135,10 @@ body {
     align-items:center;
     justify-content:center;
     gap:10px;
-    padding:14px 18px;
+    padding: clamp(12px, 3vw, 16px);
     border-radius:14px;
     border:1px solid rgba(255,255,255,0.25);
-    background:rgba(0,70,67,0.55);
+    background:rgba(0,70,67,0.60);
     color:#fff;
     font-weight:700;
     cursor:pointer;
@@ -142,6 +146,7 @@ body {
     text-decoration:none;
     backdrop-filter:blur(14px) saturate(140%);
     -webkit-backdrop-filter:blur(14px) saturate(140%);
+    font-size: clamp(14px, 2.5vw, 16px);
   }
 
   .btn-main:hover,
@@ -174,21 +179,8 @@ body {
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:20px;
+    padding: clamp(12px, 3vw, 40px);
     overflow:hidden;
-  }
-
-  h1{
-    font-size:26px;
-    text-shadow:0 0 10px rgba(0,70,67,0.7);
-    text-align:center;
-  }
-
-  .sub{
-    color:var(--muted);
-    font-size:15px;
-    margin:0 0 18px;
-    text-align:center;
   }
 
   .grid{
@@ -234,7 +226,6 @@ body {
     margin-top:12px;
     display:none;
   }
-
   .banner.show{display:block;}
 
   .hint{
@@ -246,21 +237,15 @@ body {
 
   .hidden-initial{visibility:hidden;}
 
+  /* --- Mobile tweaks --- */
   @media (max-width:600px){
     .form-card,.card{
-      padding:24px 20px;
       border-radius:18px;
-      max-width:92vw;
-    }
-    h1,.form-card h2{font-size:22px}
-    .btn-main,.btn,.cp,.open{
-      padding:12px 14px;
-      font-size:15px;
+      max-width:95vw;     /* snug to viewport */
+      max-height:90vh;    /* retain no-leak guarantee */
     }
   }
 </style>
-
-
 
 </head>
 <body>
