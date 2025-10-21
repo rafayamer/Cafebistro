@@ -169,6 +169,23 @@
     text-underline-offset:2px;
   }
   .site-footer a:hover{ text-decoration:underline; }
+  /* footer pill so text stays readable on bright backgrounds */
+  .site-footer .foot-pill{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(17, 24, 39, .78);        /* dark translucent patch */
+    color:#fff;
+    border:1px solid rgba(255,255,255,.25);   /* subtle rim */
+    box-shadow:0 6px 18px rgba(0,0,0,.35);    /* soft drop shadow */
+    backdrop-filter:blur(6px) saturate(140%); /* glassy look */
+    -webkit-backdrop-filter:blur(6px) saturate(140%);
+  }
+  .site-footer .foot-pill a{
+    color:#fff;                               /* ensure link is white */
+    text-decoration:none;
+  }
+  .site-footer .foot-pill a:hover{ text-decoration:underline; }
 
   #wifiQR{ width:min(65vw, 200px); height:auto; display:block; margin:10px auto; }
 
@@ -450,10 +467,14 @@ form.addEventListener("submit", (e) => {
 })();
 </script>
 
-<!-- Footer (only Powered By) -->
-<footer class="site-footer">
-  <div class="foot-line">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
+<footer class="site-footer" aria-label="Site footer">
+  <div class="foot-line">
+    <span class="foot-pill">
+      Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a>
+    </span>
+  </div>
 </footer>
+
 
 </body>
 </html>
