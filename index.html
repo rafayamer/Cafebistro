@@ -112,11 +112,19 @@
     backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
     font-size:clamp(14px, 2.6vw, 16px);
   }
+  /* make the top buttons shrink to their content so centering is visible */
+  .grid .btn{ width:max-content; }
+
   .btn-main:hover, .btn:hover, .cp:hover, .open:hover{
     box-shadow:0 0 22px rgba(0,70,67,.95); transform:translateY(-2px);
   }
 
-  .grid{ display:grid; gap:14px; }
+  .grid{
+  display:grid;
+  gap:14px;
+  justify-items:center;      /* center the buttons horizontally */
+    }
+
 
   .wifiBox{
     background:rgba(0,70,67,.35);
@@ -132,6 +140,21 @@
   .banner{ background:rgba(0,70,67,.55); border-radius:12px; padding:12px; font-size:13px; margin-top:12px; display:none; }
   .banner.show{ display:block; }
   .hint{ color:#e2e8f0; font-size:13px; margin-top:6px; text-align:center; }
+  /* credit link */
+.credit{
+  text-align:center;
+  margin-top:10px;
+  font-size:12px;
+  color:var(--muted);
+}
+.credit a{
+  color:#e2e8f0;
+  text-decoration:none;
+  text-underline-offset:2px;
+  opacity:.9;
+}
+.credit a:hover{ opacity:1; text-decoration:underline; }
+
   .hidden-initial{ visibility:hidden; }
 
   #wifiQR{ width:min(65vw, 200px); height:auto; display:block; margin:10px auto; }
@@ -201,7 +224,9 @@
       </div>
 
       <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically.</div>
-    </div>
+      <div class="credit">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
+        </div>
+
 
     <p class="note">Trouble? Ask staff for help.</p>
   </div>
