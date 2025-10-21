@@ -17,7 +17,6 @@
 
   *{ box-sizing:border-box; margin:0; padding:0; }
 
-  /* bg image fully visible, no filters */
   body{
     font-family:system-ui, Segoe UI, Roboto, Arial, sans-serif;
     background:url('bg.jpg') center center / cover no-repeat;
@@ -29,7 +28,6 @@
     touch-action: manipulation;
   }
 
-  /* center containers; apply safe-area padding; still no scroll */
   .overlay,
   .wrap{
     position:fixed; inset:0;
@@ -45,11 +43,8 @@
   }
   .overlay{ z-index:100; }
   .wrap{ z-index:90; }
-
-  /* when hidden, never intercept taps */
   .overlay.is-hidden{ opacity:0; pointer-events:none; }
 
-  /* the only blurred thing */
   .form-card,
   .card{
     position:relative;
@@ -63,10 +58,8 @@
     padding:clamp(20px, 5vw, 40px);
     overflow:hidden;
     transform-origin:center top;
-    will-change:transform;
   }
 
-  /* rim glow */
   .form-card::before, .card::before{
     content:""; position:absolute; inset:0; border-radius:inherit;
     background:linear-gradient(145deg, rgba(255,255,255,.25), rgba(255,255,255,.05));
@@ -115,17 +108,17 @@
 
   /* center the Save & Continue button in the form */
   .form-card #submitBtn{
-    margin: 12px auto 6px;     /* auto left/right centers the button */
-    width:max-content;         /* shrink to fit its label */
+    margin: 12px auto 6px;
+    width:max-content;
   }
 
   /* center the top action buttons */
   .grid{
     display:grid;
     gap:14px;
-    justify-items:center;      /* center the buttons horizontally */
+    justify-items:center;
   }
-  .grid .btn{ width:max-content; } /* keep buttons snug so centering is visible */
+  .grid .btn{ width:max-content; }
 
   .btn-main:hover, .btn:hover, .cp:hover, .open:hover{
     box-shadow:0 0 22px rgba(0,70,67,.95); transform:translateY(-2px);
@@ -146,6 +139,14 @@
   .banner.show{ display:block; }
   .hint{ color:#e2e8f0; font-size:13px; margin-top:6px; text-align:center; }
 
+  /* note text inside the card (for "By continuing…") */
+  .note{
+    color:var(--muted);
+    font-size:12.5px;
+    text-align:center;
+    margin-top:8px;
+  }
+
   .hidden-initial{ visibility:hidden; }
 
   /* sticky footer at the screen bottom */
@@ -155,17 +156,15 @@
     bottom:calc(env(safe-area-inset-bottom) + 12px);
     padding:0 var(--pad);
     text-align:center;
-    z-index:999;                /* above overlay/card; safe on iOS */
+    z-index:999;
     font-size:12px;
-    color:var(--muted);
-    pointer-events:none;        /* don't block taps behind */
+    color:#e5e7eb;                 /* brighter for visibility */
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+    pointer-events:none;
   }
-  .site-footer .foot-line{
-    pointer-events:auto;        /* allow links to be clickable */
-  }
-  .site-footer .foot-line + .foot-line{ margin-top:6px; }
+  .site-footer .foot-line{ pointer-events:auto; }
   .site-footer a{
-    color:#e2e8f0;
+    color:#f8fafc;
     text-decoration:none;
     text-underline-offset:2px;
   }
@@ -202,6 +201,9 @@
       <span id="btnText">Save & Continue</span>
       <span id="btnSpinner" aria-hidden="true" style="display:none">⏳</span>
     </button>
+
+    <!-- NOTE back inside the front panel -->
+    <p class="note">By continuing you agree we may contact you about your visit and offers.</p>
   </form>
 </div>
 
@@ -386,7 +388,6 @@ form.addEventListener("submit", (e) => {
     });
   });
 
-  // fade overlay & disable its pointer events immediately
   overlay.classList.add('is-hidden');
   setTimeout(() => {
     overlay.style.display = "none";
@@ -424,10 +425,7 @@ form.addEventListener("submit", (e) => {
     scaleToFit($('#checkinForm'), $('#checkinOverlay'));
     scaleToFit($('#mainRoot .card'), $('#mainRoot'));
   }
-  function scheduleFit(){
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(fitAll);
-  }
+  function scheduleFit(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(fitAll); }
   function ensureViewportOnce(){
     if (!metaFixed && desktopModeOnPhone()){
       let meta = document.querySelector('meta[name=viewport]');
@@ -452,9 +450,8 @@ form.addEventListener("submit", (e) => {
 })();
 </script>
 
-<!-- Footer -->
+<!-- Footer (only Powered By) -->
 <footer class="site-footer">
-  <div class="foot-line">By continuing you agree we may contact you about your visit and offers.</div>
   <div class="foot-line">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
 </footer>
 
