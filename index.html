@@ -112,6 +112,12 @@
     backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
     font-size:clamp(14px, 2.6vw, 16px);
   }
+  /* center the Save & Continue button in the form */
+  .form-card #submitBtn{
+    margin: 12px auto 6px;     /* auto left/right centers the button */
+    width:max-content;         /* shrink to fit its label */
+  }
+
   /* make the top buttons shrink to their content so centering is visible */
   .grid .btn{ width:max-content; }
 
@@ -156,6 +162,29 @@
 .credit a:hover{ opacity:1; text-decoration:underline; }
 
   .hidden-initial{ visibility:hidden; }
+/* sticky footer at the screen bottom */
+.site-footer{
+  position:fixed;
+  left:0; right:0;
+  bottom:calc(env(safe-area-inset-bottom) + 8px);
+  padding:0 var(--pad);
+  text-align:center;
+  z-index:110;                 /* above the overlay/card */
+  font-size:12px;
+  color:var(--muted);
+  pointer-events:none;         /* don't block taps behind */
+}
+.site-footer .foot-line{
+  pointer-events:auto;         /* links are clickable */
+}
+.site-footer .foot-line + .foot-line{ margin-top:6px; }
+.site-footer a{
+  color:#e2e8f0;
+  text-decoration:none;
+  text-underline-offset:2px;
+}
+.site-footer a:hover{ text-decoration:underline; }
+
 
   #wifiQR{ width:min(65vw, 200px); height:auto; display:block; margin:10px auto; }
 
@@ -188,7 +217,7 @@
       <span id="btnText">Save & Continue</span>
       <span id="btnSpinner" aria-hidden="true" style="display:none">⏳</span>
     </button>
-    <p class="note">By continuing you agree we may contact you about your visit and offers.</p>
+    
   </form>
 </div>
 
@@ -224,8 +253,7 @@
       </div>
 
       <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically.</div>
-      <div class="credit">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
-        </div>
+     
 
 
     <p class="note">Trouble? Ask staff for help.</p>
@@ -440,5 +468,11 @@ form.addEventListener("submit", (e) => {
   }
 })();
 </script>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="foot-line">By continuing you agree we may contact you about your visit and offers.</div>
+    <div class="foot-line">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
+  </footer>
+
 </body>
 </html>
