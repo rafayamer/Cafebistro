@@ -112,25 +112,24 @@
     backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%);
     font-size:clamp(14px, 2.6vw, 16px);
   }
+
   /* center the Save & Continue button in the form */
   .form-card #submitBtn{
     margin: 12px auto 6px;     /* auto left/right centers the button */
     width:max-content;         /* shrink to fit its label */
   }
 
-  /* make the top buttons shrink to their content so centering is visible */
-  .grid .btn{ width:max-content; }
+  /* center the top action buttons */
+  .grid{
+    display:grid;
+    gap:14px;
+    justify-items:center;      /* center the buttons horizontally */
+  }
+  .grid .btn{ width:max-content; } /* keep buttons snug so centering is visible */
 
   .btn-main:hover, .btn:hover, .cp:hover, .open:hover{
     box-shadow:0 0 22px rgba(0,70,67,.95); transform:translateY(-2px);
   }
-
-  .grid{
-  display:grid;
-  gap:14px;
-  justify-items:center;      /* center the buttons horizontally */
-    }
-
 
   .wifiBox{
     background:rgba(0,70,67,.35);
@@ -146,45 +145,31 @@
   .banner{ background:rgba(0,70,67,.55); border-radius:12px; padding:12px; font-size:13px; margin-top:12px; display:none; }
   .banner.show{ display:block; }
   .hint{ color:#e2e8f0; font-size:13px; margin-top:6px; text-align:center; }
-  /* credit link */
-.credit{
-  text-align:center;
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
-}
-.credit a{
-  color:#e2e8f0;
-  text-decoration:none;
-  text-underline-offset:2px;
-  opacity:.9;
-}
-.credit a:hover{ opacity:1; text-decoration:underline; }
 
   .hidden-initial{ visibility:hidden; }
-/* sticky footer at the screen bottom */
-.site-footer{
-  position:fixed;
-  left:0; right:0;
-  bottom:calc(env(safe-area-inset-bottom) + 8px);
-  padding:0 var(--pad);
-  text-align:center;
-  z-index:110;                 /* above the overlay/card */
-  font-size:12px;
-  color:var(--muted);
-  pointer-events:none;         /* don't block taps behind */
-}
-.site-footer .foot-line{
-  pointer-events:auto;         /* links are clickable */
-}
-.site-footer .foot-line + .foot-line{ margin-top:6px; }
-.site-footer a{
-  color:#e2e8f0;
-  text-decoration:none;
-  text-underline-offset:2px;
-}
-.site-footer a:hover{ text-decoration:underline; }
 
+  /* sticky footer at the screen bottom */
+  .site-footer{
+    position:fixed;
+    left:0; right:0;
+    bottom:calc(env(safe-area-inset-bottom) + 12px);
+    padding:0 var(--pad);
+    text-align:center;
+    z-index:999;                /* above overlay/card; safe on iOS */
+    font-size:12px;
+    color:var(--muted);
+    pointer-events:none;        /* don't block taps behind */
+  }
+  .site-footer .foot-line{
+    pointer-events:auto;        /* allow links to be clickable */
+  }
+  .site-footer .foot-line + .foot-line{ margin-top:6px; }
+  .site-footer a{
+    color:#e2e8f0;
+    text-decoration:none;
+    text-underline-offset:2px;
+  }
+  .site-footer a:hover{ text-decoration:underline; }
 
   #wifiQR{ width:min(65vw, 200px); height:auto; display:block; margin:10px auto; }
 
@@ -194,7 +179,6 @@
 </style>
 </head>
 <body>
-
 <!-- Check-in -->
 <div id="checkinOverlay" class="overlay" role="dialog" aria-modal="true">
   <form id="checkinForm" class="form-card" novalidate>
@@ -213,11 +197,11 @@
     </div>
 
     <div class="err" id="formError"></div>
+
     <button id="submitBtn" class="btn-main" type="submit">
       <span id="btnText">Save & Continue</span>
       <span id="btnSpinner" aria-hidden="true" style="display:none">⏳</span>
     </button>
-    
   </form>
 </div>
 
@@ -237,6 +221,7 @@
         <div class="pill" id="ssidText">Casa_Guest</div>
         <button class="cp" id="copySsidBtn" type="button">Copy Name</button>
       </div>
+
       <div class="rowx" style="margin-top:8px">
         <div class="pill" id="passText">••••••••</div>
         <button class="cp" id="copyPassBtn" type="button">Copy Password</button>
@@ -253,13 +238,11 @@
       </div>
 
       <div class="hint">Tip: If your phone already knows this network, it should reconnect automatically.</div>
-     
-
+    </div> <!-- ✅ CLOSES #wifiPanel -->
 
     <p class="note">Trouble? Ask staff for help.</p>
-  </div>
-</div>
-
+  </div> <!-- ✅ .card -->
+</div>   <!-- ✅ #mainRoot -->
 <script>
 /* --- Config --- */
 const WIFI_SSID = "Casa_Guest";
@@ -284,7 +267,7 @@ async function getIP(){
   try{
     const r = await fetch("https://api.ipify.org?format=json",{cache:"no-store"});
     const j = await r.json();
-    return j && j.ip || "";
+    return (j && j.ip) || "";
   }catch{ return ""; }
 }
 
@@ -468,11 +451,12 @@ form.addEventListener("submit", (e) => {
   }
 })();
 </script>
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="foot-line">By continuing you agree we may contact you about your visit and offers.</div>
-    <div class="foot-line">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
-  </footer>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="foot-line">By continuing you agree we may contact you about your visit and offers.</div>
+  <div class="foot-line">Powered By <a href="https://cubeprogramming.com/" target="_blank" rel="noopener">Cube Programming</a></div>
+</footer>
 
 </body>
 </html>
